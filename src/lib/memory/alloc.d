@@ -3,6 +3,7 @@ version(LDC) import ldc.attributes;
 else {
 	struct allocSize {long sizeArgIdx; long numArgIdx;}
 }
+version(Posix) import lib.sys.linux;
 
 @safe nothrow pure{
 uint getPageSize()
@@ -38,6 +39,10 @@ uint getAllocGranularity()
 {
 	version(Windows) {
 		void* ptr = VirtualAlloc(null, size, COMMIT, READWRITE);
+	}
+	else version(Posix) {
+		// mmap
+		void* ptr = syscall(9, null, size, cast(int)1|2, cast(int)0);
 	}
 	return ptr;
 }
